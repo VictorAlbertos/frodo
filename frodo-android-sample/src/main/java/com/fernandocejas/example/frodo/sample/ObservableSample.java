@@ -2,12 +2,15 @@ package com.fernandocejas.example.frodo.sample;
 
 import android.view.View;
 import com.fernandocejas.frodo.annotation.RxLogObservable;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
 import java.util.Arrays;
 import java.util.List;
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Func0;
-import rx.schedulers.Schedulers;
 
 import static com.fernandocejas.frodo.annotation.RxLogObservable.Scope.EVENTS;
 import static com.fernandocejas.frodo.annotation.RxLogObservable.Scope.EVERYTHING;
@@ -46,20 +49,16 @@ public class ObservableSample {
 
   @RxLogObservable(EVENTS)
   public Observable<String> stringItemWithDefer() {
-    return Observable.defer(new Func0<Observable<String>>() {
-      @Override public Observable<String> call() {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-          @Override public void call(Subscriber<? super String> subscriber) {
-            try {
-              subscriber.onNext("String item Three");
-              subscriber.onCompleted();
-            } catch (Exception e) {
-              subscriber.onError(e);
-            }
-          }
-        }).subscribeOn(Schedulers.computation());
+    return Observable.create(new ObservableOnSubscribe<String>() {
+      @Override public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+        try {
+          emitter.onNext("String item Three");
+          emitter.onComplete();
+        } catch (Exception e) {
+          emitter.onError(e);
+        }
       }
-    });
+    }).subscribeOn(Schedulers.computation());
   }
 
   /**
@@ -81,36 +80,35 @@ public class ObservableSample {
   }
 
   @RxLogObservable
-  public Observable<Void> doSomething(View view) {
-    return Observable.just(null);
+  public Observable<Integer> doSomething(View view) {
+    return Observable.just(0);
   }
 
   @RxLogObservable
-  public Observable<String> sendNull() {
-    return Observable.just(null);
+  public Observable<String> sendEmptyString() {
+    return Observable.just("");
   }
 
   @RxLogObservable
-  public Observable<Void> doNothing() {
+  public Observable<Integer> doNothing() {
     return Observable.empty();
   }
 
-  public Observable<Integer> numbersBackpressure() {
-    return Observable.create(new Observable.OnSubscribe<Integer>() {
-      @Override
-      public void call(Subscriber<? super Integer> subscriber) {
+  public Flowable<Integer> numbersBackpressure() {
+    return Flowable.create(new FlowableOnSubscribe<Integer>() {
+      @Override public void subscribe(FlowableEmitter<Integer> emitter) throws Exception {
         try {
-          if (!subscriber.isUnsubscribed()) {
+          if (!emitter.isCancelled()) {
             for (int i = 1; i < 10000; i++) {
-              subscriber.onNext(i);
+              emitter.onNext(i);
             }
-            subscriber.onCompleted();
+            emitter.onComplete();
           }
         } catch (Exception e) {
-          subscriber.onError(e);
+          emitter.onError(e);
         }
       }
-    });
+    }, FlowableEmitter.BackpressureMode.BUFFER);
   }
 
   public static final class MyDummyClass {

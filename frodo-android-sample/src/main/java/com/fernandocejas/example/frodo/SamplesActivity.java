@@ -5,20 +5,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+import com.fernandocejas.example.frodo.sample.MyObserver;
 import com.fernandocejas.example.frodo.sample.MySubscriber;
-import com.fernandocejas.example.frodo.sample.MySubscriberBackpressure;
-import com.fernandocejas.example.frodo.sample.MySubscriberVoid;
+import com.fernandocejas.example.frodo.sample.MyObserverIgnore;
 import com.fernandocejas.example.frodo.sample.ObservableSample;
+import io.reactivex.functions.Consumer;
+import io.reactivex.observers.ResourceObserver;
+import io.reactivex.schedulers.Schedulers;
 import java.util.List;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class SamplesActivity extends Activity {
 
   private Button btnRxLogObservable;
-  private Button btnRxLogSubscriber;
+  private Button btnRxLogObserver;
 
   private View.OnClickListener rxLogObservableListener = new View.OnClickListener() {
     @Override
@@ -32,30 +32,28 @@ public class SamplesActivity extends Activity {
       observableSample.numbers()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new Action1<Integer>() {
-            @Override
-            public void call(Integer integer) {
+          .subscribe(new Consumer<Integer>() {
+            @Override public void accept(Integer integer) throws Exception {
               toastMessage("onNext() Integer--> " + String.valueOf(integer));
             }
           });
 
-      observableSample.moreNumbers().toList().toBlocking().single();
+      observableSample.moreNumbers().toList().blockingSingle();
 
       observableSample.names()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new Action1<String>() {
-            @Override
-            public void call(String string) {
+          .subscribe(new Consumer<String>() {
+            @Override public void accept(String string) throws Exception {
               toastMessage("onNext() String--> " + string);
             }
           });
 
       observableSample.error()
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new Subscriber<String>() {
+          .subscribe(new ResourceObserver<String>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
               //nothing here
             }
 
@@ -73,12 +71,12 @@ public class SamplesActivity extends Activity {
       observableSample.list()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new Action1<List<ObservableSample.MyDummyClass>>() {
-            @Override
-            public void call(List<ObservableSample.MyDummyClass> myDummyClasses) {
+          .subscribe(new Consumer<List<ObservableSample.MyDummyClass>>() {
+            @Override public void accept(List<ObservableSample.MyDummyClass> myDummyClasses)
+                throws Exception {
               toastMessage("onNext() List--> " + myDummyClasses.toString());
             }
-          });
+            });
 
       observableSample.doNothing()
           .subscribeOn(Schedulers.newThread())
@@ -90,14 +88,14 @@ public class SamplesActivity extends Activity {
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe();
 
-      observableSample.sendNull()
+      observableSample.sendEmptyString()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe();
     }
   };
 
-  private View.OnClickListener rxLogSubscriberListener = new View.OnClickListener() {
+  private View.OnClickListener rxLogObserverListener = new View.OnClickListener() {
     @Override
     public void onClick(View v) {
       final ObservableSample observableSample = new ObservableSample();
@@ -106,33 +104,33 @@ public class SamplesActivity extends Activity {
       observableSample.strings()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriber());
+          .subscribe(new MyObserver());
 
       observableSample.stringsWithError()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriber());
+          .subscribe(new MyObserver());
 
       observableSample.numbersBackpressure()
           .onBackpressureDrop()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriberBackpressure());
+          .subscribe(new MySubscriber());
 
       observableSample.doNothing()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriberVoid());
+          .subscribe(new MyObserverIgnore());
 
       observableSample.doSomething(v)
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriberVoid());
+          .subscribe(new MyObserverIgnore());
 
-      observableSample.sendNull()
+      observableSample.sendEmptyString()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriber());
+          .subscribe(new MyObserver());
     }
   };
 
@@ -145,10 +143,10 @@ public class SamplesActivity extends Activity {
 
   private void mapGUI() {
     this.btnRxLogObservable = (Button) findViewById(R.id.btnRxLogObservable);
-    this.btnRxLogSubscriber = (Button) findViewById(R.id.btnRxLogSubscriber);
+    this.btnRxLogObserver = (Button) findViewById(R.id.btnRxLogObserver);
 
     this.btnRxLogObservable.setOnClickListener(rxLogObservableListener);
-    this.btnRxLogSubscriber.setOnClickListener(rxLogSubscriberListener);
+    this.btnRxLogObserver.setOnClickListener(rxLogObserverListener);
   }
 
   private void toastMessage(String message) {
