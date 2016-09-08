@@ -29,15 +29,15 @@ class MessageBuilder {
   private static final String LABEL_OBSERVABLE_ON_ERROR = "onError()";
   private static final String LABEL_OBSERVABLE_ON_COMPLETED = "onCompleted()";
   private static final String LABEL_OBSERVABLE_ON_TERMINATE = "onTerminate()";
-  private static final String LABEL_OBSERVABLE_ON_UNSUBSCRIBE = "onUnsubscribe()";
+  private static final String LABEL_OBSERVABLE_ON_DISPOSE = "onDispose()";
   private static final String LABEL_OBSERVABLE_SUBSCRIBE_ON =
       LOG_START + "SubscribeOn" + VALUE_SEPARATOR;
-  private static final String SUBSCRIBER_LABEL = LOG_START + "Subscriber";
-  private static final String LABEL_SUBSCRIBER_ON_START = "onStart()";
-  private static final String LABEL_SUBSCRIBER_ON_NEXT = "onNext()";
-  private static final String LABEL_SUBSCRIBER_ON_ERROR = "onError()";
-  private static final String LABEL_SUBSCRIBER_ON_COMPLETED = "onCompleted()";
-  private static final String LABEL_SUBSCRIBER_UN_SUBSCRIBE = "unSubscribe()";
+  private static final String OBSERVER_LABEL = LOG_START + "Observer";
+  private static final String LABEL_OBSERVER_ON_START = "onStart()";
+  private static final String LABEL_OBSERVER_ON_NEXT = "onNext()";
+  private static final String LABEL_OBSERVER_ON_ERROR = "onError()";
+  private static final String LABEL_OBSERVER_ON_COMPLETED = "onCompleted()";
+  private static final String LABEL_OBSERVER_ON_DISPOSED = "onDispose()";
   private static final String LABEL_SUBSCRIBER_OBSERVE_ON =
       LOG_START + "ObserveOn" + VALUE_SEPARATOR;
   private static final String REQUESTED_ELEMENTS_LABEL = LOG_START + "Requested" + VALUE_SEPARATOR;
@@ -140,7 +140,7 @@ class MessageBuilder {
     message.append(METHOD_SEPARATOR);
     message.append(observableInfo.getMethodName());
     message.append(VALUE_SEPARATOR);
-    message.append(LABEL_OBSERVABLE_ON_UNSUBSCRIBE);
+    message.append(LABEL_OBSERVABLE_ON_DISPOSE);
     message.append(LOG_ENCLOSING_CLOSE);
 
     return message.toString();
@@ -151,7 +151,7 @@ class MessageBuilder {
     message.append(SEPARATOR);
     message.append(subscriberName);
     message.append(VALUE_SEPARATOR);
-    message.append(LABEL_SUBSCRIBER_ON_START);
+    message.append(LABEL_OBSERVER_ON_START);
     message.append(LOG_ENCLOSING_CLOSE);
 
     return message.toString();
@@ -162,7 +162,7 @@ class MessageBuilder {
     message.append(SEPARATOR);
     message.append(subscriberName);
     message.append(VALUE_SEPARATOR);
-    message.append(LABEL_SUBSCRIBER_ON_NEXT);
+    message.append(LABEL_OBSERVER_ON_NEXT);
     message.append(VALUE_SEPARATOR);
     message.append(value != null ? value.toString() : LABEL_MESSAGE_NULL_OBSERVABLES);
     message.append(SEPARATOR);
@@ -178,7 +178,7 @@ class MessageBuilder {
     message.append(SEPARATOR);
     message.append(subscriberName);
     message.append(VALUE_SEPARATOR);
-    message.append(LABEL_SUBSCRIBER_ON_ERROR);
+    message.append(LABEL_OBSERVER_ON_ERROR);
     message.append(VALUE_SEPARATOR);
     message.append(error);
     message.append(LOG_ENCLOSING_CLOSE);
@@ -191,7 +191,7 @@ class MessageBuilder {
     message.append(SEPARATOR);
     message.append(subscriberName);
     message.append(VALUE_SEPARATOR);
-    message.append(LABEL_SUBSCRIBER_ON_COMPLETED);
+    message.append(LABEL_OBSERVER_ON_COMPLETED);
     message.append(LOG_ENCLOSING_CLOSE);
 
     return message.toString();
@@ -233,7 +233,7 @@ class MessageBuilder {
     message.append(SEPARATOR);
     message.append(subscriberName);
     message.append(VALUE_SEPARATOR);
-    message.append(LABEL_SUBSCRIBER_UN_SUBSCRIBE);
+    message.append(LABEL_OBSERVER_ON_DISPOSED);
     message.append(LOG_ENCLOSING_CLOSE);
 
     return message.toString();
@@ -284,7 +284,7 @@ class MessageBuilder {
     final StringBuilder message = new StringBuilder(avgStringSize + LIBRARY_LABEL.length());
     message.append(LIBRARY_LABEL);
     message.append(LOG_ENCLOSING_OPEN);
-    message.append(SUBSCRIBER_LABEL);
+    message.append(OBSERVER_LABEL);
     return message;
   }
 

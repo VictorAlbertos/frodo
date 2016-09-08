@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <br>Frodo => [@Observer :: MyObserver -> onNext() -> 3 :: @ObserveOn -> main]
  * <br>Frodo => [@Observer :: MyObserver -> onCompleted()]
  * <br>Frodo => [@Observer :: MyObserver -> @Received -> 16 elements :: @Time -> 6 ms]
- * <br>Frodo => [@Observer :: MyObserver -> unSubscribe()]<br>
+ * <br>Frodo => [@Observer :: MyObserver -> onDispose()]<br>
  *
  * @see <a href="https://github.com/android10/frodo/wiki">Frodo Documentation</a>
  */
