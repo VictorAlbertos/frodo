@@ -5,13 +5,13 @@ import com.fernandocejas.frodo.internal.MessageManager;
 import com.fernandocejas.frodo.internal.StopWatch;
 import com.fernandocejas.frodo.joinpoint.TestJoinPoint;
 import com.fernandocejas.frodo.joinpoint.TestProceedingJoinPoint;
+import io.reactivex.observers.TestObserver;
 import org.aspectj.lang.JoinPoint;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.observers.TestSubscriber;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -33,14 +33,14 @@ public class LogSubscriberTest {
   @Mock private StopWatch stopWatch;
   @Mock private MessageManager messageManager;
 
-  private TestSubscriber subscriber;
+  private TestObserver observer;
   private TestJoinPoint joinPoint;
 
   @Before
   public void setUp() {
     logSubscriber = new LogSubscriber(counter, stopWatch, messageManager);
-    subscriber = new TestSubscriber();
-    joinPoint = new TestJoinPoint.Builder(subscriber.getClass())
+    observer = new TestObserver();
+    joinPoint = new TestJoinPoint.Builder(observer.getClass())
         .withParamTypes(String.class)
         .withParamNames("param")
         .withParamValues("value")
@@ -50,7 +50,7 @@ public class LogSubscriberTest {
   @Test
   public void annotatedClassMustCheckTargetType() {
     final JoinPoint joinPoint = mock(JoinPoint.class);
-    given(joinPoint.getTarget()).willReturn(subscriber);
+    given(joinPoint.getTarget()).willReturn(observer);
 
     assertThat(LogSubscriber.classAnnotatedWithRxLogSubscriber(joinPoint)).isTrue();
     verify(joinPoint).getTarget();
@@ -59,7 +59,7 @@ public class LogSubscriberTest {
 
   @Test
   public void shouldWeaveClassOfTypeSubscriber() {
-    final TestJoinPoint joinPoint = new TestJoinPoint.Builder(subscriber.getClass()).build();
+    final TestJoinPoint joinPoint = new TestJoinPoint.Builder(observer.getClass()).build();
     final TestProceedingJoinPoint proceedingJoinPoint = new TestProceedingJoinPoint(joinPoint);
 
     assertThat(LogSubscriber.classAnnotatedWithRxLogSubscriber(proceedingJoinPoint)).isTrue();
@@ -77,7 +77,7 @@ public class LogSubscriberTest {
   public void printOnStartMessageBeforeSubscriberOnStartExecution() {
     logSubscriber.beforeOnStartExecution(joinPoint);
 
-    verify(messageManager).printSubscriberOnStart(subscriber.getClass().getSimpleName());
+    verify(messageManager).printSubscriberOnStart(observer.getClass().getSimpleName());
   }
 
   @Test
@@ -86,13 +86,13 @@ public class LogSubscriberTest {
 
     verify(counter).increment();
     verify(stopWatch).start();
-    verify(messageManager).printSubscriberOnNext(eq(subscriber.getClass().getSimpleName()),
+    verify(messageManager).printSubscriberOnNext(eq(observer.getClass().getSimpleName()),
         eq("value"), anyString());
   }
 
   @Test public void printOnNextMessageBeforeSubscriberOnNextExecutionWithEmptyValues() {
     final TestJoinPoint joinPointTest =
-        new TestJoinPoint.Builder(subscriber.getClass()).withParamTypes(String.class)
+        new TestJoinPoint.Builder(observer.getClass()).withParamTypes(String.class)
             .withParamNames("param")
             .withParamValues()
             .build();
@@ -100,7 +100,7 @@ public class LogSubscriberTest {
 
     verify(counter).increment();
     verify(stopWatch).start();
-    verify(messageManager).printSubscriberOnNext(eq(subscriber.getClass().getSimpleName()),
+    verify(messageManager).printSubscriberOnNext(eq(observer.getClass().getSimpleName()),
         anyObject(), anyString());
   }
 
@@ -110,7 +110,7 @@ public class LogSubscriberTest {
 
     verify(stopWatch).stop();
     verify(counter).tally();
-    verify(messageManager).printSubscriberOnError(eq(subscriber.getClass().getSimpleName()),
+    verify(messageManager).printSubscriberOnError(eq(observer.getClass().getSimpleName()),
         anyString(), anyLong(), anyInt());
     verify(counter).clear();
     verify(stopWatch).reset();
@@ -121,7 +121,7 @@ public class LogSubscriberTest {
     logSubscriber.beforeOnCompletedExecution(joinPoint);
 
     verify(stopWatch).stop();
-    verify(messageManager).printSubscriberOnCompleted(eq(subscriber.getClass().getSimpleName()),
+    verify(messageManager).printSubscriberOnCompleted(eq(observer.getClass().getSimpleName()),
         anyLong(), anyInt());
     verify(counter).tally();
     verify(counter).clear();
@@ -133,13 +133,13 @@ public class LogSubscriberTest {
   public void printUnsubscribeMessageAfterSubscriberUnsubscribeMethodCall() {
     logSubscriber.afterUnsubscribeMethodCall(joinPoint);
 
-    verify(messageManager).printSubscriberUnsubscribe(subscriber.getClass().getSimpleName());
+    verify(messageManager).printSubscriberUnsubscribe(observer.getClass().getSimpleName());
   }
 
   @Test
   public void printRequestedItemsAfterSubscriberRequestMethodCall() {
     logSubscriber.afterRequestMethodCall(joinPoint, 10);
 
-    verify(messageManager).printSubscriberRequestedItems(subscriber.getClass().getSimpleName(), 10);
+    verify(messageManager).printSubscriberRequestedItems(observer.getClass().getSimpleName(), 10);
   }
 }

@@ -1,16 +1,17 @@
 package com.fernandocejas.frodo.internal.observable;
 
 import com.fernandocejas.frodo.internal.MessageManager;
+import io.reactivex.observers.TestObserver;
 import java.lang.annotation.Annotation;
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.observers.TestSubscriber;
 
+import static junit.framework.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,7 @@ public class FrodoObservableTest {
   @Rule public ObservableRule observableRule = new ObservableRule(this.getClass());
 
   private FrodoObservable frodoObservable;
-  private TestSubscriber subscriber;
+  private TestObserver subscriber;
 
   @Mock private MessageManager messageManager;
   @Mock private LoggableObservableFactory observableFactory;
@@ -31,7 +32,7 @@ public class FrodoObservableTest {
   public void setUp() {
     frodoObservable =
         new FrodoObservable(observableRule.joinPoint(), messageManager, observableFactory);
-    subscriber = new TestSubscriber();
+    subscriber = new TestObserver();
 
     given(observableFactory.create(any(Annotation.class))).willReturn(
         createLogEverythingObservable());
@@ -47,12 +48,12 @@ public class FrodoObservableTest {
   @Test
   public void shouldBuildObservable() throws Throwable {
     frodoObservable.getObservable().subscribe(subscriber);
+    subscriber.awaitTerminalEvent();
 
-    subscriber.assertReceivedOnNext(
-        Collections.singletonList(observableRule.OBSERVABLE_STREAM_VALUE));
+    assertEquals(subscriber.values().get(0), observableRule.OBSERVABLE_STREAM_VALUE);
     subscriber.assertNoErrors();
-    subscriber.assertCompleted();
-    subscriber.assertUnsubscribed();
+    subscriber.assertComplete();
+    assertThat(subscriber.isDisposed()).isTrue();
   }
 
   @Test

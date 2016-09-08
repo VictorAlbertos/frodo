@@ -1,12 +1,12 @@
 package com.fernandocejas.frodo.joinpoint;
 
+import io.reactivex.Observable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.Observable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
