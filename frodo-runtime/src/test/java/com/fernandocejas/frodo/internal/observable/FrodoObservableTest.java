@@ -48,6 +48,8 @@ public class FrodoObservableTest {
   @Test
   public void shouldBuildObservable() throws Throwable {
     frodoObservable.getObservable().subscribe(observer);
+
+    // TODO: remove observer.dispose() once new version of RxJava2 has been released.
     observer.dispose();
 
     assertEquals(observer.values().get(0), observableRule.OBSERVABLE_STREAM_VALUE);

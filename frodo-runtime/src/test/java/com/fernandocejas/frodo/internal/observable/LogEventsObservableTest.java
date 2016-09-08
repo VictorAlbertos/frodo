@@ -33,6 +33,8 @@ public class LogEventsObservableTest {
   @Test
   public void shouldLogOnlyObservableEvents() throws Throwable {
     loggableObservable.get(observableRule.stringType()).subscribe(observer);
+
+    // TODO: remove observer.dispose() once new version of RxJava2 has been released.
     observer.dispose();
 
     verify(messageManager).printObservableOnSubscribe(any(ObservableInfo.class));

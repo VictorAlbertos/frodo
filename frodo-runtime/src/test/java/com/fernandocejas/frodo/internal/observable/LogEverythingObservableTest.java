@@ -38,6 +38,8 @@ public class LogEverythingObservableTest {
   @Test
   public void shouldLogEverythingObservable() throws Throwable {
     loggableObservable.get(observableRule.stringType()).subscribe(observer);
+
+    // TODO: remove observer.dispose() once new version of RxJava2 has been released.
     observer.dispose();
 
     verify(messageManager).printObservableOnSubscribe(any(ObservableInfo.class));
@@ -67,6 +69,8 @@ public class LogEverythingObservableTest {
         .subscribeOn(Schedulers.trampoline())
         .observeOn(Schedulers.trampoline())
         .subscribe(observer);
+
+    // TODO: remove observer.dispose() once new version of RxJava2 has been released.
     observer.dispose();
 
     final ObservableInfo observableInfo = loggableObservable.getInfo();

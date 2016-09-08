@@ -2,6 +2,7 @@ package com.fernandocejas.example.frodo.sample;
 
 import io.reactivex.subscribers.ResourceSubscriber;
 
+// TODO: create RxLogSubscriber to output Flowable messages
 public class MySubscriber extends ResourceSubscriber<Integer> {
 
   @Override

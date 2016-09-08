@@ -37,6 +37,8 @@ public class LogSchedulersObservableTest {
   @Test
   public void shouldLogOnlyObservableSchedulers() throws Throwable {
     loggableObservable.get(observableRule.stringType()).subscribe(observer);
+
+    // TODO: remove observer.dispose() once new version of RxJava2 has been released.
     observer.dispose();
 
     verify(messageManager).printObservableThreadInfo(any(ObservableInfo.class));
@@ -49,6 +51,8 @@ public class LogSchedulersObservableTest {
         .subscribeOn(Schedulers.trampoline())
         .observeOn(Schedulers.trampoline())
         .subscribe(observer);
+
+    // TODO: remove observer.dispose() once new version of RxJava2 has been released.
     observer.dispose();
 
     final ObservableInfo observableInfo = loggableObservable.getInfo();
