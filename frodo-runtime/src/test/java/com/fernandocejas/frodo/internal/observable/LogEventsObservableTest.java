@@ -33,6 +33,7 @@ public class LogEventsObservableTest {
   @Test
   public void shouldLogOnlyObservableEvents() throws Throwable {
     loggableObservable.get(observableRule.stringType()).subscribe(observer);
+    observer.dispose();
 
     verify(messageManager).printObservableOnSubscribe(any(ObservableInfo.class));
     verify(messageManager).printObservableOnNext(any(ObservableInfo.class));

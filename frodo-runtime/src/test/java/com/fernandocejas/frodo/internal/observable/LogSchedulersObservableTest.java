@@ -37,6 +37,7 @@ public class LogSchedulersObservableTest {
   @Test
   public void shouldLogOnlyObservableSchedulers() throws Throwable {
     loggableObservable.get(observableRule.stringType()).subscribe(observer);
+    observer.dispose();
 
     verify(messageManager).printObservableThreadInfo(any(ObservableInfo.class));
     verifyNoMoreInteractions(messageManager);
@@ -48,6 +49,7 @@ public class LogSchedulersObservableTest {
         .subscribeOn(Schedulers.trampoline())
         .observeOn(Schedulers.trampoline())
         .subscribe(observer);
+    observer.dispose();
 
     final ObservableInfo observableInfo = loggableObservable.getInfo();
     final Optional<String> subscribeOnThread = observableInfo.getSubscribeOnThread();

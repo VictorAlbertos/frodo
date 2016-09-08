@@ -146,7 +146,7 @@ class MessageBuilder {
     return message.toString();
   }
 
-  String buildSubscriberOnStartMessage(String subscriberName) {
+  String buildObserverOnStartMessage(String subscriberName) {
     final StringBuilder message = buildSubscriberSB();
     message.append(SEPARATOR);
     message.append(subscriberName);
@@ -157,7 +157,7 @@ class MessageBuilder {
     return message.toString();
   }
 
-  String buildSubscriberOnNextMessage(String subscriberName, Object value, String threadName) {
+  String buildObserverOnNextMessage(String subscriberName, Object value, String threadName) {
     final StringBuilder message = buildSubscriberSB();
     message.append(SEPARATOR);
     message.append(subscriberName);
@@ -173,7 +173,7 @@ class MessageBuilder {
     return message.toString();
   }
 
-  String buildSubscriberOnErrorMessage(String subscriberName, String error) {
+  String buildObserverOnErrorMessage(String subscriberName, String error) {
     final StringBuilder message = buildSubscriberSB();
     message.append(SEPARATOR);
     message.append(subscriberName);
@@ -186,7 +186,7 @@ class MessageBuilder {
     return message.toString();
   }
 
-  String buildSubscriberOnCompletedMessage(String subscriberName) {
+  String buildObserverOnCompletedMessage(String subscriberName) {
     final StringBuilder message = buildSubscriberSB();
     message.append(SEPARATOR);
     message.append(subscriberName);
@@ -197,7 +197,7 @@ class MessageBuilder {
     return message.toString();
   }
 
-  String buildSubscriberItemTimeMessage(String subscriberName, long executionTimeMillis,
+  String buildObserverItemTimeMessage(String subscriberName, long executionTimeMillis,
       int receivedItems) {
     final StringBuilder message = buildSubscriberSB();
     message.append(SEPARATOR);
@@ -215,7 +215,7 @@ class MessageBuilder {
     return message.toString();
   }
 
-  String buildSubscriberRequestedItemsMessage(String subscriberName, long requestedItems) {
+  String buildObserverRequestedItemsMessage(String subscriberName, long requestedItems) {
     final StringBuilder message = buildSubscriberSB();
     message.append(SEPARATOR);
     message.append(subscriberName);
@@ -228,7 +228,7 @@ class MessageBuilder {
     return message.toString();
   }
 
-  String buildSubscriberUnsubscribeMessage(String subscriberName) {
+  String buildObserverUnsubscribeMessage(String subscriberName) {
     final StringBuilder message = buildSubscriberSB();
     message.append(SEPARATOR);
     message.append(subscriberName);

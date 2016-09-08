@@ -25,9 +25,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LogSubscriberTest {
+public class LogObserverTest {
 
-  private LogSubscriber logSubscriber;
+  private LogObserver logObserver;
 
   @Mock private Counter counter;
   @Mock private StopWatch stopWatch;
@@ -38,7 +38,7 @@ public class LogSubscriberTest {
 
   @Before
   public void setUp() {
-    logSubscriber = new LogSubscriber(counter, stopWatch, messageManager);
+    logObserver = new LogObserver(counter, stopWatch, messageManager);
     observer = new TestObserver();
     joinPoint = new TestJoinPoint.Builder(observer.getClass())
         .withParamTypes(String.class)
@@ -52,76 +52,76 @@ public class LogSubscriberTest {
     final JoinPoint joinPoint = mock(JoinPoint.class);
     given(joinPoint.getTarget()).willReturn(observer);
 
-    assertThat(LogSubscriber.classAnnotatedWithRxLogSubscriber(joinPoint)).isTrue();
+    assertThat(LogObserver.classAnnotatedWithRxLogObserver(joinPoint)).isTrue();
     verify(joinPoint).getTarget();
     verifyNoMoreInteractions(joinPoint);
   }
 
   @Test
-  public void shouldWeaveClassOfTypeSubscriber() {
+  public void shouldWeaveClassOfTypeObserver() {
     final TestJoinPoint joinPoint = new TestJoinPoint.Builder(observer.getClass()).build();
     final TestProceedingJoinPoint proceedingJoinPoint = new TestProceedingJoinPoint(joinPoint);
 
-    assertThat(LogSubscriber.classAnnotatedWithRxLogSubscriber(proceedingJoinPoint)).isTrue();
+    assertThat(LogObserver.classAnnotatedWithRxLogObserver(proceedingJoinPoint)).isTrue();
   }
 
   @Test
-  public void shouldNotWeaveClassOfOtherTypeThanSubscriber() {
+  public void shouldNotWeaveClassOfOtherTypeThanObserver() {
     final TestJoinPoint joinPoint = new TestJoinPoint.Builder(this.getClass()).build();
     final TestProceedingJoinPoint proceedingJoinPoint = new TestProceedingJoinPoint(joinPoint);
 
-    assertThat(LogSubscriber.classAnnotatedWithRxLogSubscriber(proceedingJoinPoint)).isFalse();
+    assertThat(LogObserver.classAnnotatedWithRxLogObserver(proceedingJoinPoint)).isFalse();
   }
 
   @Test
-  public void printOnStartMessageBeforeSubscriberOnStartExecution() {
-    logSubscriber.beforeOnStartExecution(joinPoint);
+  public void printOnStartMessageBeforeObserverOnStartExecution() {
+    logObserver.beforeOnStartExecution(joinPoint);
 
-    verify(messageManager).printSubscriberOnStart(observer.getClass().getSimpleName());
+    verify(messageManager).printObserverOnStart(observer.getClass().getSimpleName());
   }
 
   @Test
-  public void printOnNextMessageBeforeSubscriberOnNextExecution() {
-    logSubscriber.beforeOnNextExecution(joinPoint);
+  public void printOnNextMessageBeforeObserverOnNextExecution() {
+    logObserver.beforeOnNextExecution(joinPoint);
 
     verify(counter).increment();
     verify(stopWatch).start();
-    verify(messageManager).printSubscriberOnNext(eq(observer.getClass().getSimpleName()),
+    verify(messageManager).printObserverOnNext(eq(observer.getClass().getSimpleName()),
         eq("value"), anyString());
   }
 
-  @Test public void printOnNextMessageBeforeSubscriberOnNextExecutionWithEmptyValues() {
+  @Test public void printOnNextMessageBeforeObserverOnNextExecutionWithEmptyValues() {
     final TestJoinPoint joinPointTest =
         new TestJoinPoint.Builder(observer.getClass()).withParamTypes(String.class)
             .withParamNames("param")
             .withParamValues()
             .build();
-    logSubscriber.beforeOnNextExecution(joinPointTest);
+    logObserver.beforeOnNextExecution(joinPointTest);
 
     verify(counter).increment();
     verify(stopWatch).start();
-    verify(messageManager).printSubscriberOnNext(eq(observer.getClass().getSimpleName()),
+    verify(messageManager).printObserverOnNext(eq(observer.getClass().getSimpleName()),
         anyObject(), anyString());
   }
 
   @Test
-  public void printOnErrorMessageAfterSubscriberOnErrorExecution() {
-    logSubscriber.afterOnErrorExecution(joinPoint, new IllegalStateException());
+  public void printOnErrorMessageAfterObserverOnErrorExecution() {
+    logObserver.afterOnErrorExecution(joinPoint, new IllegalStateException());
 
     verify(stopWatch).stop();
     verify(counter).tally();
-    verify(messageManager).printSubscriberOnError(eq(observer.getClass().getSimpleName()),
+    verify(messageManager).printObserverOnError(eq(observer.getClass().getSimpleName()),
         anyString(), anyLong(), anyInt());
     verify(counter).clear();
     verify(stopWatch).reset();
   }
 
   @Test
-  public void printOnCompleteMessageBeforeSubscriberOnCompleteExecution() {
-    logSubscriber.beforeOnCompletedExecution(joinPoint);
+  public void printOnCompleteMessageBeforeObserverOnCompleteExecution() {
+    logObserver.beforeOnCompletedExecution(joinPoint);
 
     verify(stopWatch).stop();
-    verify(messageManager).printSubscriberOnCompleted(eq(observer.getClass().getSimpleName()),
+    verify(messageManager).printObserverOnCompleted(eq(observer.getClass().getSimpleName()),
         anyLong(), anyInt());
     verify(counter).tally();
     verify(counter).clear();
@@ -130,16 +130,16 @@ public class LogSubscriberTest {
   }
 
   @Test
-  public void printUnsubscribeMessageAfterSubscriberUnsubscribeMethodCall() {
-    logSubscriber.afterUnsubscribeMethodCall(joinPoint);
+  public void printUnsubscribeMessageAfterObserverUnsubscribeMethodCall() {
+    logObserver.afterUnsubscribeMethodCall(joinPoint);
 
-    verify(messageManager).printSubscriberUnsubscribe(observer.getClass().getSimpleName());
+    verify(messageManager).printObserverUnsubscribe(observer.getClass().getSimpleName());
   }
 
   @Test
-  public void printRequestedItemsAfterSubscriberRequestMethodCall() {
-    logSubscriber.afterRequestMethodCall(joinPoint, 10);
+  public void printRequestedItemsAfterObserverRequestMethodCall() {
+    logObserver.afterRequestMethodCall(joinPoint, 10);
 
-    verify(messageManager).printSubscriberRequestedItems(observer.getClass().getSimpleName(), 10);
+    verify(messageManager).printObserverRequestedItems(observer.getClass().getSimpleName(), 10);
   }
 }

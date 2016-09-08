@@ -38,6 +38,7 @@ public class LogEverythingObservableTest {
   @Test
   public void shouldLogEverythingObservable() throws Throwable {
     loggableObservable.get(observableRule.stringType()).subscribe(observer);
+    observer.dispose();
 
     verify(messageManager).printObservableOnSubscribe(any(ObservableInfo.class));
     verify(messageManager).printObservableOnNextWithValue(any(ObservableInfo.class), anyString());
@@ -66,6 +67,7 @@ public class LogEverythingObservableTest {
         .subscribeOn(Schedulers.trampoline())
         .observeOn(Schedulers.trampoline())
         .subscribe(observer);
+    observer.dispose();
 
     final ObservableInfo observableInfo = loggableObservable.getInfo();
     final Optional<String> subscribeOnThread = observableInfo.getSubscribeOnThread();

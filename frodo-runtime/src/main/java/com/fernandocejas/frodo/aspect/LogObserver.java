@@ -4,17 +4,17 @@ import com.fernandocejas.frodo.internal.Counter;
 import com.fernandocejas.frodo.internal.MessageManager;
 import com.fernandocejas.frodo.internal.StopWatch;
 import com.fernandocejas.frodo.joinpoint.FrodoJoinPoint;
+import io.reactivex.Observer;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.reactivestreams.Subscriber;
 
 @Aspect
-public class LogSubscriber {
+public class LogObserver {
   private static final String CLASS =
-      "within(@com.fernandocejas.frodo.annotation.RxLogSubscriber *) && if()";
+      "within(@com.fernandocejas.frodo.annotation.RxLogObserver *) && if()";
 
   private static final String METHOD_ON_START = "execution(void *.onStart())";
   private static final String METHOD_ON_NEXT = "execution(void *.onNext(..))";
@@ -30,19 +30,19 @@ public class LogSubscriber {
   private final MessageManager messageManager;
   private boolean isFirstElementEmitted = true;
 
-  public LogSubscriber() {
+  public LogObserver() {
     this(new Counter(), new StopWatch(), new MessageManager());
   }
 
-  public LogSubscriber(Counter counter, StopWatch stopWatch, MessageManager messageManager) {
+  public LogObserver(Counter counter, StopWatch stopWatch, MessageManager messageManager) {
     this.counter = counter;
     this.stopWatch = stopWatch;
     this.messageManager = messageManager;
   }
 
   @Pointcut(CLASS)
-  public static boolean classAnnotatedWithRxLogSubscriber(JoinPoint joinPoint) {
-    return joinPoint.getTarget() instanceof Subscriber;
+  public static boolean classAnnotatedWithRxLogObserver(JoinPoint joinPoint) {
+    return joinPoint.getTarget() instanceof Observer;
   }
 
   @Pointcut(METHOD_ON_START)
@@ -69,47 +69,47 @@ public class LogSubscriber {
   public void onUnsubscribeMethodCall() {
   }
 
-  @Before("classAnnotatedWithRxLogSubscriber(joinPoint) && onStartMethodExecution()")
+  @Before("classAnnotatedWithRxLogObserver(joinPoint) && onStartMethodExecution()")
   public void beforeOnStartExecution(JoinPoint joinPoint) {
-    messageManager.printSubscriberOnStart(joinPoint.getTarget().getClass().getSimpleName());
+    messageManager.printObserverOnStart(joinPoint.getTarget().getClass().getSimpleName());
   }
 
-  @Before("classAnnotatedWithRxLogSubscriber(joinPoint) && onNextMethodExecution()")
+  @Before("classAnnotatedWithRxLogObserver(joinPoint) && onNextMethodExecution()")
   public void beforeOnNextExecution(JoinPoint joinPoint) {
     countAndMeasureTime();
     final FrodoJoinPoint frodoJoinPoint = new FrodoJoinPoint(joinPoint);
     final Object value = frodoJoinPoint.getMethodParamValuesList().isEmpty() ? null
         : frodoJoinPoint.getMethodParamValuesList().get(0);
-    messageManager.printSubscriberOnNext(joinPoint.getTarget().getClass().getSimpleName(), value,
+    messageManager.printObserverOnNext(joinPoint.getTarget().getClass().getSimpleName(), value,
         Thread.currentThread().getName());
   }
 
-  @After(value = "classAnnotatedWithRxLogSubscriber(joinPoint) && onErrorMethodExecution(throwable)",
+  @After(value = "classAnnotatedWithRxLogObserver(joinPoint) && onErrorMethodExecution(throwable)",
       argNames = "joinPoint,throwable")
   public void afterOnErrorExecution(JoinPoint joinPoint, Throwable throwable) {
     stopWatch.stop();
-    messageManager.printSubscriberOnError(joinPoint.getTarget().getClass().getSimpleName(),
+    messageManager.printObserverOnError(joinPoint.getTarget().getClass().getSimpleName(),
         throwable.toString(),
         stopWatch.getTotalTimeMillis(), counter.tally());
     resetCounters();
   }
 
-  @Before("classAnnotatedWithRxLogSubscriber(joinPoint) && onCompletedMethodExecution()")
+  @Before("classAnnotatedWithRxLogObserver(joinPoint) && onCompletedMethodExecution()")
   public void beforeOnCompletedExecution(JoinPoint joinPoint) {
     stopWatch.stop();
-    messageManager.printSubscriberOnCompleted(joinPoint.getTarget().getClass().getSimpleName(),
+    messageManager.printObserverOnCompleted(joinPoint.getTarget().getClass().getSimpleName(),
         stopWatch.getTotalTimeMillis(), counter.tally());
     resetCounters();
   }
 
-  @After("classAnnotatedWithRxLogSubscriber(joinPoint) && onUnsubscribeMethodCall()")
+  @After("classAnnotatedWithRxLogObserver(joinPoint) && onUnsubscribeMethodCall()")
   public void afterUnsubscribeMethodCall(JoinPoint joinPoint) {
-    messageManager.printSubscriberUnsubscribe(joinPoint.getTarget().getClass().getSimpleName());
+    messageManager.printObserverUnsubscribe(joinPoint.getTarget().getClass().getSimpleName());
   }
 
-  @After("classAnnotatedWithRxLogSubscriber(joinPoint) && onRequestMethodCall(numberOfItems)")
+  @After("classAnnotatedWithRxLogObserver(joinPoint) && onRequestMethodCall(numberOfItems)")
   public void afterRequestMethodCall(JoinPoint joinPoint, long numberOfItems) {
-    messageManager.printSubscriberRequestedItems(joinPoint.getTarget().getClass().getSimpleName(),
+    messageManager.printObserverRequestedItems(joinPoint.getTarget().getClass().getSimpleName(),
         numberOfItems);
   }
 
